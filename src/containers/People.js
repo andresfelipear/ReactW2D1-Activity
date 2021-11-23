@@ -1,45 +1,38 @@
-import React, { useState } from 'react';
-
+import React from 'react'
 import Person from '../components/Person/Person';
 import AddPerson from '../components/AddPerson/AddPerson';
 
-const People = () => {
-    const [people, setPeople] = useState([])
+import * as  actionType from '../redux/action'
+import {connect} from "react-redux"
 
+const People = ({peopleProps, addPerson, deletePerson}) =>{
 
-    const personAddedHandler = () => {
-        const newPerson = {
-            id: Math.random(), // not really unique but good enough here!
-            name: 'John',
-            age: Math.floor( Math.random() * 40 )
-        }
-
-        setPeople( ( prevState ) => {
-            return [
-                ...prevState,
-                newPerson
-            ]
-        } );
-    }
-
-    const personDeletedHandler = (personId) => {
-        setPeople( ( prevState ) => {
-            return prevState.filter(person => person.id !== personId)
-        } );
-    }
-
-    return (
+    return(
         <div>
-            <AddPerson personAdded={personAddedHandler} />
-            {people.map(person => (
+            <AddPerson personAdded={addPerson} />
+            {peopleProps && peopleProps.map(person => (
                 <Person 
                     key={person.id}
                     name={person.name} 
                     age={person.age} 
-                    clicked={() => personDeletedHandler(person.id)}/>
+                    clicked={() => deletePerson(person.id)}/>
             ))}
         </div>
     );
 }
 
-export default People;
+const mapStateToProps = (state) => {
+    return {
+        peopleProps: state.people
+    }
+
+}
+
+const mapDispatchedToProps = (dispatch)=>{
+    return {
+        addPerson: () => dispatch({type:actionType.addPerson}),
+        deletePerson: (id) => dispatch({type:actionType.deletePerson,payload: id})
+    }
+
+}
+export default connect(mapStateToProps,mapDispatchedToProps)(People);
